@@ -1,0 +1,25 @@
+{
+  "numero": 9,
+  "dati_clinici": {
+    "paziente": {
+      "nome": "Mario Rossi",
+      "eta": 45,
+      "sesso": "Maschio"
+    },
+    "diagnosi": "Ipertensione",
+    "trattamento": {
+      "farmaci": [
+        {
+          "nome": "Amlodipina",
+          "dosaggio": "5mg",
+          "frequenza": "una volta al giorno"
+        }
+      ],
+      "stile_di_vita": {
+        "dieta": "Dieta a basso contenuto di sodio",
+        "esercizio": "30 minuti di attività fisica al giorno"
+      }
+    },
+    "note": "Controllo della pressione arteriosa programmato tra 3 mesi."
+  }
+}

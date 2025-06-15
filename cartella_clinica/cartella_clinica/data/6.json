@@ -1,0 +1,28 @@
+{
+  "numero": 6,
+  "paziente": {
+    "nome": "Mario Rossi",
+    "eta": 45,
+    "sesso": "Maschile"
+  },
+  "diagnosi": [
+    {
+      "data": "2023-01-15",
+      "tipo": "Visita di controllo",
+      "note": "Tutto nella norma."
+    },
+    {
+      "data": "2023-02-20",
+      "tipo": "Esame del sangue",
+      "note": "Colesterolo leggermente alto."
+    }
+  ],
+  "trattamenti": [
+    {
+      "data_inizio": "2023-03-01",
+      "data_fine": "2023-03-15",
+      "tipo": "Dieta",
+      "note": "Dieta a basso contenuto di grassi."
+    }
+  ]
+}
