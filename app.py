@@ -159,9 +159,9 @@ def pagina_ambulanze():
 
     st.altair_chart(chart, use_container_width=True)
 
-    media_durata = df_tempo['durata_minuti'].mean()
+    media_durata = df_tempo['tempo_di_intervento'].mean()
 
-    st.markdown("<h3 style='color:#B22222; margin-bottom:10px;'>Durata media di occupazione</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#B22222; margin-bottom:10px;'>Tempo medio di intervento</h3>", unsafe_allow_html=True)
 
     st.markdown(
         """
@@ -175,7 +175,7 @@ def pagina_ambulanze():
         unsafe_allow_html=True
     )
 
-    st.metric("Tempo medio", f"{media_durata:.1f} minuti")
+    st.metric("Tempo medio di intervento:", f"{media_durata:.1f} minuti")
 
     if media_durata > 20:
         messaggio = (
@@ -209,20 +209,37 @@ def pagina_ambulanze():
     df_dist = pd.read_csv("output/distribuzione_ambulanze_estreme.csv")
 
     if not df_dist.empty:
-        df_melted = df_dist.melt(id_vars=['citta'], 
-                                 value_vars=['percentuale_rapidi', 'percentuale_lenti'],
-                                 var_name='Tipo', value_name='Percentuale')
+        # Calcola la percentuale mancante (fascia media)
+        df_dist["percentuale_fascia_media"] = 100 - df_dist["percentuale_rapidi"] - df_dist["percentuale_lenti"]
+
+        # Melting per trasformare in formato long
+        df_melted = df_dist.melt(
+            id_vars=['citta'], 
+            value_vars=['percentuale_rapidi', 'percentuale_fascia_media', 'percentuale_lenti'],
+            var_name='Tipo', 
+            value_name='Percentuale'
+        )
+
+        # Rinomina le etichette
         df_melted['Tipo'] = df_melted['Tipo'].map({
-            'percentuale_rapidi': 'Ambulanze Veloci (≤10 min)',
-            'percentuale_lenti': 'Ambulanze Lente (≥30 min)'
+            'percentuale_rapidi': 'Ambulanze Veloci (≤8 min)',
+            'percentuale_fascia_media': 'Ambulanze in Fascia Media (9–19 min)',
+            'percentuale_lenti': 'Ambulanze Lente (≥20 min)'
         })
+
+        # Colori personalizzati: blu, verde, arancione
+        colori = ['#1f77b4', '#2ca02c', '#ff7f0e']
+
+        # Grafico
         chart_dist = alt.Chart(df_melted).mark_bar().encode(
             x=alt.X('citta:N', sort='-y', title='Città'),
             y=alt.Y('Percentuale:Q', title='Percentuale (%)'),
-            color=alt.Color('Tipo:N', scale=alt.Scale(range=['#1f77b4', '#ff7f0e']), legend=alt.Legend(title="Tipo Ambulanze")),
+            color=alt.Color('Tipo:N', scale=alt.Scale(range=colori), legend=alt.Legend(title="Tipo Ambulanze")),
             tooltip=['citta', 'Tipo', alt.Tooltip('Percentuale', format='.2f')]
         ).properties(width=700, height=400)
+
         st.altair_chart(chart_dist, use_container_width=True)
+
     else:
         st.info("Il file con la distribuzione delle ambulanze estreme non è disponibile.")
 
@@ -239,10 +256,10 @@ def pagina_ambulanze():
     )
 
     # Converte le ore in formato datetime
-    df_tempo['ora_partenza_ambulanza'] = pd.to_datetime(df_tempo['ora_partenza_ambulanza'], format="%H:%M", errors='coerce')
+    df_tempo['ora_chiamata'] = pd.to_datetime(df_tempo['ora_chiamata'], format="%H:%M", errors='coerce')
 
     # Filtra righe valide
-    df_orari = df_tempo.dropna(subset=['ora_partenza_ambulanza']).copy()
+    df_orari = df_tempo.dropna(subset=['ora_chiamata']).copy()
 
     # Definizione fasce orarie
     def fascia_oraria(h):
@@ -260,7 +277,7 @@ def pagina_ambulanze():
             return "02:00 - 05:59"
 
     # Applica la fascia oraria
-    df_orari['fascia_oraria'] = df_orari['ora_partenza_ambulanza'].dt.hour.apply(fascia_oraria)
+    df_orari['fascia_oraria'] = df_orari['ora_chiamata'].dt.hour.apply(fascia_oraria)
 
     # Conta gli interventi per fascia
     df_interventi = df_orari['fascia_oraria'].value_counts().reset_index()
@@ -338,7 +355,8 @@ def pagina_ambulanze():
             df_citta_decessi = decessi_sul_posto.groupby("citta").size().reset_index(name="decessi")
             df_merge = pd.merge(df_citta, df_citta_decessi, on="citta", how="left").fillna(0)
             df_merge["percentuale"] = (df_merge["decessi"] / df_merge["interventi_totali"]) * 100
-            df_merge = df_merge[df_merge["interventi_totali"] >= 10]  # escludiamo città con pochi dati
+            # Ordina e mostra solo le città con almeno 1 decesso
+            df_merge = df_merge[df_merge["decessi"] > 0]
 
             chart_decessi = alt.Chart(df_merge.sort_values("percentuale", ascending=False).head(15)).mark_bar(color="#B22222").encode(
                 x=alt.X("percentuale:Q", title="Percentuale (%)"),
@@ -379,6 +397,32 @@ def pagina_pazienti():
 
         df = pd.DataFrame(dati)
 
+        # Sidebar: ricerca paziente con autocomplete simulato
+        st.sidebar.markdown("### 🔍 Cerca paziente")
+
+        pazienti_unici = sorted(df["cognome_nome_paziente"].dropna().unique().tolist())
+
+        input_nome = st.sidebar.text_input("Digita nome o cognome")
+
+        if input_nome:
+            risultati = [p for p in pazienti_unici if input_nome.lower() in p.lower()]
+        else:
+            risultati = []
+
+        if not risultati and input_nome:
+            risultati = ["⚠️ Nessun paziente trovato"]
+
+        selezionato = st.sidebar.selectbox("Seleziona un paziente", risultati)
+
+        # Visualizza dettagli solo se selezionato paziente valido
+        if selezionato and selezionato != "⚠️ Nessun paziente trovato":
+            st.subheader(f"📄 Dettagli per: {selezionato}")
+            dati_paziente = df[df["cognome_nome_paziente"] == selezionato]
+
+            st.write(f"Totale interventi registrati: {len(dati_paziente)}")
+            st.dataframe(dati_paziente.drop(columns=["_id"]))
+
+        # --- Visualizzazioni generali sintomi ---
         st.subheader("Sintomi più frequenti")
         if "sintomi" in df.columns:
             sintomi_espansi = df.explode("sintomi")
@@ -396,9 +440,9 @@ def pagina_pazienti():
         st.subheader("Sintomi più frequenti per fascia d'età")
 
         if "eta" in df.columns and "sintomi" in df.columns:
-            df = df[df["eta"].notnull()]
-            df["eta"] = pd.to_numeric(df["eta"], errors="coerce")
-            
+            df_eta = df[df["eta"].notnull()]
+            df_eta["eta"] = pd.to_numeric(df_eta["eta"], errors="coerce")
+
             def fascia_eta(e):
                 if e <= 18:
                     return "0–18"
@@ -408,24 +452,67 @@ def pagina_pazienti():
                     return "36–60"
                 else:
                     return "60+"
-            
-            df["fascia_eta"] = df["eta"].apply(fascia_eta)
-            df_exploded = df.explode("sintomi")
+
+            df_eta["fascia_eta"] = df_eta["eta"].apply(fascia_eta)
+            df_exploded = df_eta.explode("sintomi")
             df_gruppo = df_exploded.groupby(["fascia_eta", "sintomi"]).size().reset_index(name="conteggio")
-            
+
             top_sintomi = df_gruppo.groupby("sintomi")["conteggio"].sum().nlargest(10).index
             df_gruppo_top = df_gruppo[df_gruppo["sintomi"].isin(top_sintomi)]
-            
+
             chart_fasce = alt.Chart(df_gruppo_top).mark_bar().encode(
                 x=alt.X("conteggio:Q", title="Frequenza"),
                 y=alt.Y("sintomi:N", title="Sintomo", sort="-x"),
                 color=alt.Color("fascia_eta:N", title="Fascia d'età"),
                 tooltip=["sintomi", "fascia_eta", "conteggio"]
             ).properties(width=700, height=400)
-            
+
             st.altair_chart(chart_fasce, use_container_width=True)
         else:
             st.info("Dati insufficienti per analizzare sintomi per età.")
+
+        st.subheader("💊 Farmaci più somministrati")
+
+        st.markdown(
+            """
+            Questo grafico mostra i farmaci più comunemente somministrati durante gli interventi.
+            Queste informazioni sono utili per identificare quali farmaci devono sempre essere disponibili a bordo delle ambulanze, 
+            per garantire un intervento rapido ed efficace.
+            """
+        )
+
+        if "farmaci_somministrati" in df.columns:
+            # Funzione per estrarre i nomi farmaci da ogni record
+            def estrai_farmaci(record):
+                farmaci = record
+                if isinstance(farmaci, list):
+                    nomi = []
+                    for f in farmaci:
+                        if isinstance(f, dict) and "nome" in f:
+                            nomi.append(f["nome"].lower())
+                        elif isinstance(f, str):
+                            nomi.append(f.lower())
+                    return nomi
+                return []
+
+            # Applica la funzione per creare una lista espansa di farmaci
+            farmaci_espansi = df["farmaci_somministrati"].apply(estrai_farmaci).explode().dropna()
+
+            if not farmaci_espansi.empty:
+                farmaci_freq = farmaci_espansi.value_counts().reset_index()
+                farmaci_freq.columns = ["Farmaco", "Frequenza"]
+
+                chart_farmaci = alt.Chart(farmaci_freq.head(15)).mark_bar(color="#FF6F61").encode(
+                    x=alt.X("Frequenza:Q"),
+                    y=alt.Y("Farmaco:N", sort='-x'),
+                    tooltip=["Farmaco", "Frequenza"]
+                ).properties(width=700, height=400)
+
+                st.altair_chart(chart_farmaci, use_container_width=True)
+            else:
+                st.info("Nessun dato disponibile sui farmaci somministrati.")
+        else:
+            st.info("Campo 'farmaci_somministrati' non presente nel database.")
 
     except Exception as e:
         st.error(f"Errore nella connessione al database: {e}")
