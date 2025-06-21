@@ -1,0 +1,150 @@
+latex
+\documentclass[a4paper]{article}
+
+% ========================
+% PACCHETTI
+% ========================
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{amssymb}
+\usepackage{geometry}
+
+% Margini pagina
+\geometry{a4paper, left=2cm, right=2cm, top=2.5cm, bottom=2.5cm}
+
+% ========================
+% COMANDI PERSONALIZZATI
+% ========================
+\newcommand{\field}[1]{\underline{\makebox[#1]{\hspace*{\fill}}}} % Campo compilabile a lunghezza fissa
+\newcommand{\checkbox}{$\square$~}                                % Casella da spuntare
+\newcommand{\graycell}[1]{\cellcolor[gray]{0.85}\textbf{#1}}      % Intestazione grigia in grassetto
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}         % Colonna allineata a sinistra con larghezza personalizzata
+
+% ========================
+% INIZIO DOCUMENTO
+% ========================
+\begin{document}
+
+% ----------------------------------------
+% INTESTAZIONE
+% ----------------------------------------
+\begin{center}
+    {\LARGE \textbf{CROCE ROSSA ITALIANA}}\\
+    \textbf{Comitato Provinciale di Venezia}
+\end{center}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE CHIAMATA
+% ----------------------------------------
+\begin{tabular}{|L{0.5\textwidth}|L{0.5\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{\graycell{Chiamata}} \\ \hline
+\graycell{Data} & 18-06-2025 \\ \hline
+\graycell{Luogo Intervento} & Parco Comunale, Viale dei Platani, Siena SI, 53100 \\ \hline
+\graycell{Ora chiamata} & 17:45 \\ \hline
+\graycell{Ora partenza} & 17:47 \\ \hline
+\graycell{Ora sul posto} & 17:55 \\ \hline
+\graycell{Condizione riferita} & Collasso improvviso, assenza battito, assenza respiro \\ \hline
+\graycell{Ora partenza posto} & 18:32 \\ \hline
+\graycell{Ora in PS} &  \\ \hline
+\graycell{Ora libero e operativo} & 19:00 \\ \hline
+\graycell{Recapito telefonico} & 3398877431 \\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE AMBULANZA
+% ----------------------------------------
+\begin{tabular}{|L{0.5\textwidth}|L{0.5\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{\graycell{Ambulanza}} \\ \hline
+\graycell{CRI} & CR20250618-011 \\ \hline
+\graycell{Sezione} & MSA Siena \\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE PAZIENTE
+% ----------------------------------------
+\begin{tabular}{|L{0.5\textwidth}|L{0.5\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{\graycell{Paziente}} \\ \hline
+\graycell{Cognome e Nome} & Rossi Andrea \\ \hline
+\graycell{Sesso} & M \\ \hline
+\graycell{Data di nascita} & 21-09-1971 \\ \hline
+\graycell{Luogo di nascita} & Siena (SI) \\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE PARAMETRI VITALI
+% ----------------------------------------
+\begin{tabular}{|L{0.2\textwidth}|L{0.2\textwidth}|L{0.2\textwidth}|L{0.2\textwidth}|}
+\hline
+\graycell{Tempo} & \graycell{Frequenza Cardiaca} & \graycell{Pressione Arteriosa} & \graycell{Saturazione Ossigeno} \\ \hline
+17:56 & 0 & 0/0 mmHg & 0\% \\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE INTERVENTO
+% ----------------------------------------
+\begin{tabular}{|L{0.5\textwidth}|L{0.5\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{\graycell{Intervento}} \\ \hline
+\graycell{Sintomi} & Collasso improvviso, assenza battito, assenza respiro \\ \hline
+\graycell{Allergie} & Non note \\ \hline
+\graycell{Patologie pregresse} & Ipertensione \\ \hline
+\graycell{Farmaci assunti} & Ramipril \\ \hline
+\graycell{Ossigenoterapia} & Sì (12 L/min) \\ \hline
+\graycell{Farmaci somministrati} & Adrenalina 1mg (x4), Atropina, Amiodarone \\ \hline
+\graycell{Monitoraggio continuo} & Sì \\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE EQUIPAGGIO
+% ----------------------------------------
+\begin{tabular}{|L{0.5\textwidth}|L{0.5\textwidth}|}
+\hline
+\multicolumn{2}{|c|}{\graycell{Equipaggio}} \\ \hline
+\graycell{Nome Soccorritore 1} & Lorenzo Neri \\ \hline
+\graycell{Ruolo Soccorritore 1} & Autista Soccorritore \\ \hline
+\graycell{Nome Soccorritore 2} & Marta Moretti \\ \hline
+\graycell{Ruolo Soccorritore 2} & Medico \\ \hline
+\graycell{Nome Soccorritore 3} & Chiara Rinaldi \\ \hline
+\graycell{Ruolo Soccorritore 3} & Soccorritore \\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE NOTE
+% ----------------------------------------
+\begin{tabular}{|L{1.0\textwidth}|}
+\hline
+\graycell{Note Intervento} \\ \hline
+All’arrivo sul posto, paziente in asistolia. Avviate immediatamente manovre di rianimazione cardio-polmonare. Defibrillazioni inefficaci. Somministrati 4 boli di adrenalina, atropina e amiodarone. Nessun ritorno del circolo spontaneo. Decesso constatato alle ore 18:25. Presente pattuglia dei Carabinieri. Medico legale allertato. \\ \hline
+\end{tabular}
+
+\vspace{0.5cm}
+
+% ----------------------------------------
+% SEZIONE FIRMA
+% ----------------------------------------
+\begin{tabular}{|L{0.5\textwidth}|L{0.5\textwidth}|}
+\hline
+\graycell{Firma Responsabile} & Dott.ssa Marta Moretti \\ \hline
+\end{tabular}
+
+\end{document}
