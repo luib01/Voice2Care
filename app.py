@@ -471,7 +471,7 @@ def pagina_pazienti():
         else:
             st.info("Dati insufficienti per analizzare sintomi per età.")
 
-        st.subheader("💊 Farmaci più somministrati")
+        st.subheader("Farmaci più somministrati")
 
         st.markdown(
             """
